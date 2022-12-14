@@ -1,0 +1,70 @@
+Customer:
+
+create table Cust(
+cust_id bigint,
+first_name String,
+last_name String,
+age int,
+proff String 
+)
+row format delimited
+fields terminated by ","
+stored as textfile;
+
+--------------------------
+
+select proff, count(cust_id) as Cust_Count
+from cust
+group by proff
+order by Cust_count desc limit 10;
+
+--------------------
+
+create table tx(
+txn_id  bigint,
+txn_date String,
+cust_id bigint,
+amount float,
+category String,
+product String,
+city String,
+state String,
+spendby String
+)
+row format delimited
+fields terminated by ","
+stored as textfile;
+
+------------------
+
+select product, sum(amount) as Sales
+from tx
+group by product
+order by Sales desc limit 10;
+
+-----------------
+
+partitioned table on category:
+
+create table tx1(
+txn_id  bigint,
+txn_date String,
+cust_id bigint,
+amount float,
+product String,
+city String,
+state String,
+spendby String
+)
+partitioned by (category String)
+row format delimited
+fields terminated by ","
+stored as textfile;
+
+set hive.exec.dynamic.partition.mode=nonstrict; 
+set hive.exec.dynamic.partition=true;
+
+insert overwrite table tx1 partition(category) 
+select tx.txn_id,tx.txn_date,tx.cust_id,tx.amount,tx.product,tx.city,tx.state,tx.spendby,tx.category from tx tx distribute by category;
+
+
