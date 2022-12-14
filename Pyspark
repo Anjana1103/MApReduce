@@ -1,0 +1,21 @@
+from pyspark.sql.types import StructType, StringType, IntegerType, DoubleType, LongType 
+schema90=StructType().add("year",IntegerType(),True).add("quarter",IntegerType(),True).add("arps",DoubleType(),True).add("total_seats",IntegerType(),True)
+
+d1=spark.read.format("csv").option("header","True").schema(schema90).load("hdfs://nameservice1/user/bigcdac432583/training1/airlines.csv")
+d1.registerTempTable("airlines")
+
+-----------------------------------------------------------
+
+ans1=spark.sql("select year, sum(arps*total_seats) as total from airlines group by year order by total desc")
+ans1.show()
+
+ans11=spark.sql("select year, round(sum(arps*total_seats)/1000000,2) as total_mill from airlines group by year order by total_mill desc")
+
+----------------------------------------------------------
+
+ans2=spark.sql("select year, sum(total_seats) as Total_people from airlines group by year order by Total_people desc")
+ans2.show()
+
+-------------------------------------------------------------
+
+ans3=spark.sql("select round(sum(arps*total_seats)/1000000,2) as total_mill, year,quarter from airlines group by year,quarter order by total_mill desc")
